@@ -31,7 +31,7 @@ jobs:
           dotnet build --no-restore ./src/Todo.Api.sln
 
       - name: Test .NET
-        run: dotnet test ./src/Todo.Api.sln --no-restore --no-build --configuration Release --logger trx --results-directory "TestResults"
+        run: dotnet test ./src/Todo.Api.sln --no-restore --no-build --configuration release --logger trx --results-directory "TestResults"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
