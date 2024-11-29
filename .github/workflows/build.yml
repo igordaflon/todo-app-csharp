@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build project
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core 
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+          cache: true
+          cache-dependency-path: ./src/**/packages.lock.json
+
+      - name: Build .NET
+        run: |
+          dotnet restore ./src/Todo.Api.sln
+          dotnet build --no-restore ./src/Todo.Api.sln
+
+      - name: Test .NET
+        run: dotnet test ./src/Todo.Api.sln --no-restore --no-build --configuration Release --logger trx --results-directory "TestResults"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: ./src/web
+
+      - name: Install dependencies
+        working-directory: ./src/web
+        run: |
+          npm install
+          npm run build
+
+
+
+
+
+
+
+
