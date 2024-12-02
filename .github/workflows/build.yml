@@ -39,9 +39,10 @@ jobs:
           git push --tags
         if: github.ref == 'refs/heads/main'
 
-  build:
+  backend-build-and-test:
+    needs: versionamento
     runs-on: ubuntu-latest
-    name: Build project
+    name: Backend Build and Test
 
     steps:
       - name: Checkout code
@@ -54,16 +55,34 @@ jobs:
           cache: true
           cache-dependency-path: ./src/**/packages.lock.json
 
-      - name: Build .NET
+      - name: Restore
         run: |
           dotnet restore ./src/Todo.Api.sln
-          dotnet build --no-restore ./src/Todo.Api.sln
-          dotnet test ./src/Todo.Api.sln --no-restore --no-build --logger trx --results-directory "TestResults"
+
+      - name: Build
+        run: |
+          dotnet build --no-restore --configuration Release ./src/Todo.Api.sln
+
+      - name: Test
+        run: |
+          dotnet test --no-build --no-restore ./src/Todo.Api.sln --configuration Release --logger trx --results-directory "TestResults"
 
       - uses: actions/upload-artifact@v4
         with:
           name: dotnet-test-results
           path: TestResults
+
+  frontend-build-and-test:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Frontend Build and Test
+    defaults:
+      run:
+        working-directory: ./src/web
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -73,9 +92,15 @@ jobs:
           cache-dependency-path: ./src/web
 
       - name: Install dependencies
-        working-directory: ./src/web
         run: |
-          npm install
+          npm ci
+
+      - name: Install dependencies
+        run: |
+          npm run lint
+
+      - name: Install dependencies
+        run: |
           npm run build
 
 
