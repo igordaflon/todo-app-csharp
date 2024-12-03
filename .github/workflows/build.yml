@@ -9,6 +9,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
 
   versionamento:
@@ -71,6 +75,25 @@ jobs:
         with:
           name: dotnet-test-results
           path: TestResults
+
+  backend-lint:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Backend Lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: github/super-linter@v6
+        env:
+          DEFAULT_BRANCH: "main"
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   frontend-build-and-test:
     needs: versionamento
