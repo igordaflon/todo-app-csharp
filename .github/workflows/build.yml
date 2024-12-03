@@ -103,6 +103,41 @@ jobs:
         run: |
           npm run build
 
+  frontend-lint:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Frontend Lint
+    defaults:
+      run:
+        working-directory: ./src/web
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: ./src/web
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Install dependencies
+        run: |
+          npm run lint
+
+  dependency-check:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+
+
 
 
 
