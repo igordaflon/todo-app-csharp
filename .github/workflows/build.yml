@@ -168,6 +168,38 @@ jobs:
           comment-summary-in-pr: always
     if: github.ref != 'refs/heads/main'
 
+  code-security-check:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        name: Initialize CodeQL - Backend
+        with:
+          languages: csharp
+
+      - uses: github/codeql-action/analyze@v3
+        name: Analyze code - Backend
+        with:
+          category: "/language:csharp"
+
+      - uses: github/codeql-action/init@v3
+        name: Initialize CodeQL - Frontend
+        with:
+          languages: javascript
+  
+      - uses: github/codeql-action/analyze@v3
+        name: Analyze code - Frontend
+        with:
+          category: "/language:javascript"
+
+          
 
 
 
