@@ -154,6 +154,7 @@ jobs:
           npm run lint
 
   dependency-check:
+    name: Dependency Check
     needs: versionamento
     runs-on: ubuntu-latest
     permissions:
@@ -161,9 +162,11 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/dependency-review-action@v4
         with:
           comment-summary-in-pr: always
+    if: github.ref != 'refs/heads/main'
 
 
 
